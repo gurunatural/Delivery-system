@@ -18,24 +18,24 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- ICONS (Inline SVG to avoid external dependencies) ---
+        // --- ICONS ---
         const IconNavigation = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>;
         const IconSearch = () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
         const IconHome = ({size=32}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
         const IconMapPin = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const IconPhone = ({size=12}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+        const IconPhone = ({size=12}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
         const IconRefresh = ({className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>;
         const IconChevronRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
         const IconX = ({size=24}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
         const IconAlert = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
 
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvWiUuu38g5EWYIKzL8O0gQWIKTRtcAtiBlXxCAjg8dTnIpwAlEQiM_v9e6C639GYJLBYSm-SeWuJD/pubhtml";
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSretHvAs4tMhyEZvG7BAFuOYnSk28vfK__jGIb_sbYetP2vGk0-sO8mw29DIRYlAGI6BVdvLDH5H-c/pubhtml?gid=0&single=true";
 
         const App = () => {
             const [customers, setCustomers] = useState([]);
@@ -57,11 +57,14 @@
                     if (cleanId.includes('/d/e/')) {
                         cleanId = cleanId.split('/d/e/')[1].split('/')[0];
                     }
+                    
                     const url = `https://docs.google.com/spreadsheets/d/e/${cleanId}/pub?output=csv`;
                     const response = await fetch(url);
-                    if (!response.ok) throw new Error("Connection failed. Check 'Publish to web' settings.");
+                    if (!response.ok) throw new Error("Could not fetch data.");
+                    
                     const csvText = await response.text();
-                    if (csvText.includes('<!DOCTYPE html>')) throw new Error("Access Denied: The sheet is private.");
+                    if (csvText.includes('<!DOCTYPE html>')) throw new Error("Private Sheet Detected.");
+                    
                     const data = parseCSV(csvText);
                     setCustomers(data);
                     setLastSync(new Date().toLocaleTimeString());
@@ -72,106 +75,139 @@
                 }
             };
 
+            // Improved CSV splitter that handles empty columns correctly
+            const splitCSVRow = (row) => {
+                const result = [];
+                let current = "";
+                let inQuotes = false;
+                for (let i = 0; i < row.length; i++) {
+                    const char = row[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current);
+                        current = "";
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current);
+                return result.map(v => v.trim().replace(/^"|"$/g, ''));
+            };
+
             const parseCSV = (csv) => {
                 const lines = csv.split(/\r?\n/);
                 if (lines.length < 2) return [];
-                const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+
+                // Headers from the first row
+                const headers = splitCSVRow(lines[0]).map(h => h.toLowerCase());
                 const result = [];
+                
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
-                    const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-                    if (matches) {
-                        const obj = {};
-                        headers.forEach((header, idx) => {
-                            obj[header] = matches[idx] ? matches[idx].replace(/"/g, '').trim() : '';
-                        });
-                        result.push(obj);
-                    }
+                    
+                    const values = splitCSVRow(lines[i]);
+                    const obj = {};
+                    
+                    headers.forEach((header, idx) => {
+                        obj[header] = values[idx] || "";
+                    });
+                    
+                    result.push(obj);
                 }
                 return result;
             };
 
             const filteredCustomers = useMemo(() => {
-                return customers.filter(c => 
-                    (c['customer id'] || '').toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (c['customer name'] || '').toString().toLowerCase().includes(searchQuery.toLowerCase())
-                );
+                return customers.filter(c => {
+                    const id = (c['customer id'] || '').toString().toLowerCase();
+                    const name = (c['customer name'] || '').toString().toLowerCase();
+                    const query = searchQuery.toLowerCase();
+                    return id.includes(query) || name.includes(query);
+                });
             }, [customers, searchQuery]);
 
             const cleanPhone = (num) => num ? num.toString().replace(/[^0-9+]/g, '') : "";
 
             return (
-                <div className="min-h-screen pb-28">
-                    {/* Yellow Header */}
+                <div className="min-h-screen">
                     <header className="bg-yellow-400 text-slate-900 p-4 sticky top-0 z-20 shadow-md">
                         <div className="max-w-4xl mx-auto flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="bg-slate-900/10 p-2 rounded-xl border border-slate-900/5">
+                                <div className="bg-slate-900/10 p-2 rounded-xl">
                                     <IconNavigation />
                                 </div>
                                 <div>
                                     <h1 className="text-lg font-black tracking-tight leading-none uppercase">GURU Delivery System</h1>
                                     <p className="text-[10px] font-bold text-slate-700 mt-1 uppercase tracking-widest">
-                                        {loading ? 'Syncing...' : `${customers.length} Customers Available`}
+                                        {loading ? 'Refreshing...' : `${customers.length} Customers Available`}
                                     </p>
                                 </div>
                             </div>
-                            <button onClick={fetchData} className="p-2.5 rounded-xl bg-slate-900/5 hover:bg-slate-900/10 transition-all active:scale-90 border border-slate-900/5">
+                            <button onClick={fetchData} className="p-2.5 rounded-xl bg-slate-900/5 hover:bg-slate-900/10 transition-all border border-slate-900/5">
                                 <IconRefresh className={loading ? 'animate-spin' : ''} />
                             </button>
                         </div>
                     </header>
 
                     <main className="max-w-4xl mx-auto p-4 space-y-4">
-                        {/* Search */}
-                        <div className="relative">
+                        <div className="relative group">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                                 <IconSearch />
                             </div>
                             <input 
                                 type="text"
                                 placeholder="Search by ID or Name..."
-                                className="w-full pl-14 pr-4 py-5 bg-white rounded-3xl shadow-sm border border-slate-100 focus:ring-4 focus:ring-yellow-400/20 focus:border-yellow-400 outline-none transition-all text-lg font-medium"
+                                className="w-full pl-14 pr-4 py-5 bg-white rounded-3xl shadow-sm border border-slate-100 focus:ring-4 focus:ring-yellow-400/20 outline-none transition-all text-lg font-medium"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
 
                         {error && (
-                            <div className="bg-red-50 text-red-700 p-5 rounded-3xl border-2 border-red-100 flex items-start gap-4">
+                            <div className="bg-red-50 text-red-700 p-5 rounded-3xl border-2 border-red-100 flex items-start gap-4 animate-in">
                                 <IconAlert />
-                                <div><p className="font-black text-sm uppercase">Sync Problem</p><p className="text-xs">{error}</p></div>
-                            </div>
-                        )}
-
-                        {loading && customers.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-24 text-slate-400 font-black text-xs uppercase tracking-widest">
-                                <div className="animate-spin mb-4 text-yellow-500">
-                                    <IconRefresh className="w-12 h-12" />
+                                <div>
+                                    <p className="font-black text-sm uppercase">Sync Problem</p>
+                                    <p className="text-xs opacity-80">{error}</p>
                                 </div>
-                                Updating Database
                             </div>
                         )}
 
-                        {/* Customer List */}
                         {!loading && customers.length > 0 && (
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center px-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    <span>{searchQuery ? `FOUND ${filteredCustomers.length}` : `ALL CUSTOMERS`}</span>
-                                    {lastSync && <span className="font-mono">Synced: {lastSync}</span>}
+                                    <span>{searchQuery ? `FOUND ${filteredCustomers.length}` : `DIRECTORY`}</span>
+                                    {lastSync && <span className="font-mono">Updated: {lastSync}</span>}
                                 </div>
+                                
                                 {filteredCustomers.map((c, i) => (
-                                    <div key={i} onClick={() => setSelectedCustomer(c)} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex gap-5 hover:border-yellow-400/50 transition-all cursor-pointer group active:scale-[0.98]">
-                                        <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden group-hover:bg-yellow-50 group-hover:text-yellow-500 transition-all">
-                                            {c['photo link of customer home'] ? <img src={c['photo link of customer home']} className="h-full w-full object-cover" onError={(e) => e.target.style.display='none'} /> : <IconHome size={32}/>}
+                                    <div 
+                                        key={i} 
+                                        onClick={() => setSelectedCustomer(c)} 
+                                        className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex gap-5 hover:border-yellow-400/50 transition-all cursor-pointer group active:scale-[0.98] animate-in"
+                                    >
+                                        <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border border-slate-50">
+                                            {c['photo link of customer home'] ? (
+                                                <img 
+                                                    src={c['photo link of customer home']} 
+                                                    alt="" 
+                                                    className="h-full w-full object-cover" 
+                                                    onError={(e) => { e.target.style.display='none'; e.target.parentNode.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'; }} 
+                                                />
+                                            ) : <IconHome size={32}/>}
                                         </div>
                                         <div className="flex-1 min-w-0 flex flex-col justify-center">
                                             <div className="flex justify-between items-start gap-2">
-                                                <h3 className="font-black text-slate-800 truncate text-lg group-hover:text-yellow-600">{c['customer name'] || 'Unknown'}</h3>
-                                                <span className="shrink-0 text-[10px] font-black bg-yellow-100 text-yellow-800 px-2 py-1 rounded-lg">ID: {c['customer id']}</span>
+                                                <h3 className="font-black text-slate-800 truncate text-lg group-hover:text-yellow-600 transition-colors">
+                                                    {c['customer name'] || '---'}
+                                                </h3>
+                                                <span className="shrink-0 text-[10px] font-black bg-yellow-100 text-yellow-800 px-2 py-1 rounded-lg border border-yellow-200">
+                                                    ID: {c['customer id']}
+                                                </span>
                                             </div>
                                             <p className="text-xs font-medium text-slate-500 truncate mt-1">
-                                                <IconMapPin size={12} className="inline mr-1 mb-0.5" />
+                                                <IconMapPin size={12} className="inline mr-1" />
                                                 {c['custmer adress']}
                                             </p>
                                         </div>
@@ -184,51 +220,335 @@
                         )}
                     </main>
 
-                    {/* Popup Modal */}
                     {selectedCustomer && (
                         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/95 backdrop-blur-md p-0 sm:p-4" onClick={() => setSelectedCustomer(null)}>
-                            <div className="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] overflow-hidden animate-in shadow-2xl relative" onClick={e => e.stopPropagation()}>
-                                {/* Enhanced Close Button */}
+                            <div className="bg-white w-full max-w-lg rounded-t-[3.5rem] sm:rounded-[3.5rem] overflow-hidden animate-in shadow-2xl relative" onClick={e => e.stopPropagation()}>
                                 <div className="absolute top-6 right-6 z-30">
-                                    <button onClick={() => setSelectedCustomer(null)} className="bg-black/60 backdrop-blur-xl text-white p-3 rounded-2xl hover:bg-black/80 border border-white/20 transition-all active:scale-90 shadow-lg cursor-pointer">
+                                    <button onClick={() => setSelectedCustomer(null)} className="bg-black/60 backdrop-blur-xl text-white p-4 rounded-2xl hover:bg-black/80 border border-white/20 transition-all active:scale-90">
                                         <IconX size={24} />
                                     </button>
                                 </div>
 
-                                <div className="relative h-72 bg-slate-200">
+                                <div className="relative h-80 bg-slate-200">
                                     {selectedCustomer['photo link of customer home'] ? 
-                                        <img src={selectedCustomer['photo link of customer home']} className="w-full h-full object-cover" /> : 
+                                        <img src={selectedCustomer['photo link of customer home']} className="w-full h-full object-cover" alt="Customer Home" /> : 
                                         <div className="w-full h-full flex items-center justify-center text-slate-300"><IconHome size={100}/></div>}
-                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 pt-32 text-white">
-                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white bg-slate-900 px-4 py-2 rounded-xl mb-4 inline-block border border-slate-700 shadow-md">
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-10 pt-32 text-white">
+                                        <span className="text-[12px] font-black uppercase tracking-[0.25em] text-white bg-slate-900 px-5 py-2.5 rounded-2xl mb-5 inline-block border border-slate-700 shadow-xl">
                                             ID: {selectedCustomer['customer id']}
                                         </span>
                                         <h2 className="text-4xl font-black tracking-tight">{selectedCustomer['customer name']}</h2>
                                     </div>
                                 </div>
 
-                                <div className="p-8 space-y-8 bg-white">
+                                <div className="p-10 space-y-8 bg-white">
                                     <div className="space-y-6">
-                                        <div className="flex gap-5">
-                                            <div className="h-12 w-12 rounded-2xl bg-yellow-50 flex items-center justify-center shrink-0 border border-yellow-100"><IconMapPin className="text-yellow-600"/></div>
-                                            <div><h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</h4><p className="text-slate-700 font-bold text-lg leading-snug">{selectedCustomer['custmer adress']}</p></div>
+                                        <div className="flex gap-6">
+                                            <div className="h-14 w-14 rounded-[1.25rem] bg-yellow-50 flex items-center justify-center shrink-0 border border-yellow-100 shadow-sm"><IconMapPin className="text-yellow-600"/></div>
+                                            <div>
+                                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination Address</h4>
+                                                <p className="text-slate-700 font-bold text-xl leading-snug">{selectedCustomer['custmer adress']}</p>
+                                            </div>
                                         </div>
+                                        
                                         <div className="grid grid-cols-2 gap-4">
-                                            <a href={`tel:${cleanPhone(selectedCustomer['mobile number'])}`} className="bg-emerald-50 p-5 rounded-[2rem] active:scale-95 border border-emerald-100">
-                                                <h4 className="text-[10px] font-black text-emerald-600 uppercase mb-2 flex items-center gap-2"><IconPhone size={12}/> Mobile</h4>
-                                                <p className="text-emerald-900 font-black text-lg truncate">{selectedCustomer['mobile number'] || '---'}</p>
+                                            <a href={`tel:${cleanPhone(selectedCustomer['mobile number'])}`} className="bg-emerald-50 p-6 rounded-[2.5rem] border border-emerald-100 flex flex-col justify-center">
+                                                <h4 className="text-[10px] font-black text-emerald-600 uppercase mb-2 flex items-center gap-2"><IconPhone size={14}/> Mobile</h4>
+                                                <p className="text-emerald-900 font-black text-lg truncate leading-none">{selectedCustomer['mobile number'] || '---'}</p>
                                             </a>
-                                            <a href={`tel:${cleanPhone(selectedCustomer['alternate number'])}`} className="bg-slate-50 p-5 rounded-[2rem] active:scale-95 border border-slate-100">
-                                                <h4 className="text-[10px] font-black text-slate-500 uppercase mb-2 flex items-center gap-2"><IconPhone size={12}/> Alternate</h4>
-                                                <p className="text-slate-800 font-black text-lg truncate">{selectedCustomer['alternate number'] || '---'}</p>
+                                            <a href={`tel:${cleanPhone(selectedCustomer['alternate number'])}`} className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex flex-col justify-center">
+                                                <h4 className="text-[10px] font-black text-slate-500 uppercase mb-2 flex items-center gap-2"><IconPhone size={14}/> Alternate</h4>
+                                                <p className="text-slate-800 font-black text-lg truncate leading-none">{selectedCustomer['alternate number'] || '---'}</p>
                                             </a>
                                         </div>
                                     </div>
-                                    <a href={selectedCustomer['google link of location']} target="_blank" className="w-full bg-yellow-400 text-slate-900 py-6 rounded-[2rem] font-black text-center flex items-center justify-center gap-4 shadow-2xl shadow-yellow-400/20 active:scale-[0.97] transition-all text-xl">
+
+                                    <a href={selectedCustomer['google link of location']} target="_blank" className="w-full bg-yellow-400 text-slate-900 py-7 rounded-[2.5rem] font-black text-center flex items-center justify-center gap-4 shadow-2xl shadow-yellow-400/30 active:scale-[0.97] transition-all text-xl">
                                         <IconNavigation /> START GPS NAVIGATION
                                     </a>
                                 </div>
-                                <div className="h-10 sm:h-0"></div>
+                                <div className="h-12 sm:h-0"></div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GURU Delivery System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .animate-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- ICONS ---
+        const IconNavigation = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>;
+        const IconSearch = () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+        const IconHome = ({size=32}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const IconMapPin = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const IconPhone = ({size=12}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+        const IconRefresh = ({className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>;
+        const IconChevronRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
+        const IconX = ({size=24}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
+        const IconAlert = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSretHvAs4tMhyEZvG7BAFuOYnSk28vfK__jGIb_sbYetP2vGk0-sO8mw29DIRYlAGI6BVdvLDH5H-c/pubhtml?gid=0&single=true";
+
+        const App = () => {
+            const [customers, setCustomers] = useState([]);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [selectedCustomer, setSelectedCustomer] = useState(null);
+            const [lastSync, setLastSync] = useState(null);
+
+            useEffect(() => {
+                fetchData();
+            }, []);
+
+            const fetchData = async () => {
+                setLoading(true);
+                setError(null);
+                try {
+                    let cleanId = SHEET_URL;
+                    if (cleanId.includes('/d/e/')) {
+                        cleanId = cleanId.split('/d/e/')[1].split('/')[0];
+                    }
+                    
+                    const url = `https://docs.google.com/spreadsheets/d/e/${cleanId}/pub?output=csv`;
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error("Could not fetch data.");
+                    
+                    const csvText = await response.text();
+                    if (csvText.includes('<!DOCTYPE html>')) throw new Error("Private Sheet Detected.");
+                    
+                    const data = parseCSV(csvText);
+                    setCustomers(data);
+                    setLastSync(new Date().toLocaleTimeString());
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            // Improved CSV splitter that handles empty columns correctly
+            const splitCSVRow = (row) => {
+                const result = [];
+                let current = "";
+                let inQuotes = false;
+                for (let i = 0; i < row.length; i++) {
+                    const char = row[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current);
+                        current = "";
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current);
+                return result.map(v => v.trim().replace(/^"|"$/g, ''));
+            };
+
+            const parseCSV = (csv) => {
+                const lines = csv.split(/\r?\n/);
+                if (lines.length < 2) return [];
+
+                // Headers from the first row
+                const headers = splitCSVRow(lines[0]).map(h => h.toLowerCase());
+                const result = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const values = splitCSVRow(lines[i]);
+                    const obj = {};
+                    
+                    headers.forEach((header, idx) => {
+                        obj[header] = values[idx] || "";
+                    });
+                    
+                    result.push(obj);
+                }
+                return result;
+            };
+
+            const filteredCustomers = useMemo(() => {
+                return customers.filter(c => {
+                    const id = (c['customer id'] || '').toString().toLowerCase();
+                    const name = (c['customer name'] || '').toString().toLowerCase();
+                    const query = searchQuery.toLowerCase();
+                    return id.includes(query) || name.includes(query);
+                });
+            }, [customers, searchQuery]);
+
+            const cleanPhone = (num) => num ? num.toString().replace(/[^0-9+]/g, '') : "";
+
+            return (
+                <div className="min-h-screen">
+                    <header className="bg-yellow-400 text-slate-900 p-4 sticky top-0 z-20 shadow-md">
+                        <div className="max-w-4xl mx-auto flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-slate-900/10 p-2 rounded-xl">
+                                    <IconNavigation />
+                                </div>
+                                <div>
+                                    <h1 className="text-lg font-black tracking-tight leading-none uppercase">GURU Delivery System</h1>
+                                    <p className="text-[10px] font-bold text-slate-700 mt-1 uppercase tracking-widest">
+                                        {loading ? 'Refreshing...' : `${customers.length} Customers Available`}
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={fetchData} className="p-2.5 rounded-xl bg-slate-900/5 hover:bg-slate-900/10 transition-all border border-slate-900/5">
+                                <IconRefresh className={loading ? 'animate-spin' : ''} />
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="max-w-4xl mx-auto p-4 space-y-4">
+                        <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <IconSearch />
+                            </div>
+                            <input 
+                                type="text"
+                                placeholder="Search by ID or Name..."
+                                className="w-full pl-14 pr-4 py-5 bg-white rounded-3xl shadow-sm border border-slate-100 focus:ring-4 focus:ring-yellow-400/20 outline-none transition-all text-lg font-medium"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-50 text-red-700 p-5 rounded-3xl border-2 border-red-100 flex items-start gap-4 animate-in">
+                                <IconAlert />
+                                <div>
+                                    <p className="font-black text-sm uppercase">Sync Problem</p>
+                                    <p className="text-xs opacity-80">{error}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {!loading && customers.length > 0 && (
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center px-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <span>{searchQuery ? `FOUND ${filteredCustomers.length}` : `DIRECTORY`}</span>
+                                    {lastSync && <span className="font-mono">Updated: {lastSync}</span>}
+                                </div>
+                                
+                                {filteredCustomers.map((c, i) => (
+                                    <div 
+                                        key={i} 
+                                        onClick={() => setSelectedCustomer(c)} 
+                                        className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex gap-5 hover:border-yellow-400/50 transition-all cursor-pointer group active:scale-[0.98] animate-in"
+                                    >
+                                        <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border border-slate-50">
+                                            {c['photo link of customer home'] ? (
+                                                <img 
+                                                    src={c['photo link of customer home']} 
+                                                    alt="" 
+                                                    className="h-full w-full object-cover" 
+                                                    onError={(e) => { e.target.style.display='none'; e.target.parentNode.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'; }} 
+                                                />
+                                            ) : <IconHome size={32}/>}
+                                        </div>
+                                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                            <div className="flex justify-between items-start gap-2">
+                                                <h3 className="font-black text-slate-800 truncate text-lg group-hover:text-yellow-600 transition-colors">
+                                                    {c['customer name'] || '---'}
+                                                </h3>
+                                                <span className="shrink-0 text-[10px] font-black bg-yellow-100 text-yellow-800 px-2 py-1 rounded-lg border border-yellow-200">
+                                                    ID: {c['customer id']}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs font-medium text-slate-500 truncate mt-1">
+                                                <IconMapPin size={12} className="inline mr-1" />
+                                                {c['custmer adress']}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center text-slate-300 group-hover:translate-x-1 transition-transform">
+                                            <IconChevronRight />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </main>
+
+                    {selectedCustomer && (
+                        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/95 backdrop-blur-md p-0 sm:p-4" onClick={() => setSelectedCustomer(null)}>
+                            <div className="bg-white w-full max-w-lg rounded-t-[3.5rem] sm:rounded-[3.5rem] overflow-hidden animate-in shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                                <div className="absolute top-6 right-6 z-30">
+                                    <button onClick={() => setSelectedCustomer(null)} className="bg-black/60 backdrop-blur-xl text-white p-4 rounded-2xl hover:bg-black/80 border border-white/20 transition-all active:scale-90">
+                                        <IconX size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="relative h-80 bg-slate-200">
+                                    {selectedCustomer['photo link of customer home'] ? 
+                                        <img src={selectedCustomer['photo link of customer home']} className="w-full h-full object-cover" alt="Customer Home" /> : 
+                                        <div className="w-full h-full flex items-center justify-center text-slate-300"><IconHome size={100}/></div>}
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-10 pt-32 text-white">
+                                        <span className="text-[12px] font-black uppercase tracking-[0.25em] text-white bg-slate-900 px-5 py-2.5 rounded-2xl mb-5 inline-block border border-slate-700 shadow-xl">
+                                            ID: {selectedCustomer['customer id']}
+                                        </span>
+                                        <h2 className="text-4xl font-black tracking-tight">{selectedCustomer['customer name']}</h2>
+                                    </div>
+                                </div>
+
+                                <div className="p-10 space-y-8 bg-white">
+                                    <div className="space-y-6">
+                                        <div className="flex gap-6">
+                                            <div className="h-14 w-14 rounded-[1.25rem] bg-yellow-50 flex items-center justify-center shrink-0 border border-yellow-100 shadow-sm"><IconMapPin className="text-yellow-600"/></div>
+                                            <div>
+                                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination Address</h4>
+                                                <p className="text-slate-700 font-bold text-xl leading-snug">{selectedCustomer['custmer adress']}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <a href={`tel:${cleanPhone(selectedCustomer['mobile number'])}`} className="bg-emerald-50 p-6 rounded-[2.5rem] border border-emerald-100 flex flex-col justify-center">
+                                                <h4 className="text-[10px] font-black text-emerald-600 uppercase mb-2 flex items-center gap-2"><IconPhone size={14}/> Mobile</h4>
+                                                <p className="text-emerald-900 font-black text-lg truncate leading-none">{selectedCustomer['mobile number'] || '---'}</p>
+                                            </a>
+                                            <a href={`tel:${cleanPhone(selectedCustomer['alternate number'])}`} className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex flex-col justify-center">
+                                                <h4 className="text-[10px] font-black text-slate-500 uppercase mb-2 flex items-center gap-2"><IconPhone size={14}/> Alternate</h4>
+                                                <p className="text-slate-800 font-black text-lg truncate leading-none">{selectedCustomer['alternate number'] || '---'}</p>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <a href={selectedCustomer['google link of location']} target="_blank" className="w-full bg-yellow-400 text-slate-900 py-7 rounded-[2.5rem] font-black text-center flex items-center justify-center gap-4 shadow-2xl shadow-yellow-400/30 active:scale-[0.97] transition-all text-xl">
+                                        <IconNavigation /> START GPS NAVIGATION
+                                    </a>
+                                </div>
+                                <div className="h-12 sm:h-0"></div>
                             </div>
                         </div>
                     )}
