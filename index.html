@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GURU Customer Directory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -13,10 +13,13 @@
             border-bottom: 2px solid #ef4444; /* Red bottom border for header */
         }
         .customer-card {
-            transition: transform 0.2s ease;
+            transition: transform 0.1s ease, background-color 0.1s ease;
+            touch-action: manipulation; /* Removes tap delay on mobile */
+            -webkit-tap-highlight-color: transparent;
         }
         .customer-card:active {
-            transform: scale(0.97);
+            transform: scale(0.96);
+            background-color: #fef2f2; /* Light red flash on tap */
         }
         .loader {
             border-top-color: #ef4444;
@@ -95,7 +98,7 @@
             <!-- Compact Header -->
             <div class="relative h-44 bg-gray-200">
                 <img id="modalPhoto" src="" alt="Customer Photo" class="w-full h-full object-cover">
-                <button onclick="closeModal()" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center">
+                <button onclick="closeModal()" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center z-10">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
                 <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white p-4">
@@ -157,6 +160,7 @@
         const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSretHvAs4tMhyEZvG7BAFuOYnSk28vfK__jGIb_sbYetP2vGk0-sO8mw29DIRYlAGI6BVdvLDH5H-c/pub?output=csv`;
 
         let customers = [];
+        let filteredCustomers = [];
         let columnsMap = {};
 
         window.onload = fetchData;
@@ -173,7 +177,8 @@
                 parseFullCSV(text);
                 
                 document.getElementById('loading').classList.add('hidden');
-                renderList(customers);
+                filteredCustomers = [...customers];
+                renderList(filteredCustomers);
             } catch (err) {
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('errorState').classList.remove('hidden');
@@ -246,8 +251,10 @@
                 return;
             }
             document.getElementById('noResults').classList.add('hidden');
-            container.innerHTML = list.map(c => `
-                <div class="customer-card bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 cursor-pointer" onclick='openModal(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
+            
+            // Generate list items as fragments for speed
+            container.innerHTML = list.map((c, index) => `
+                <div class="customer-card bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 cursor-pointer" onclick="openModalByIndex(${index})">
                     <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
                         <img src="${c.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(c.name) + '&background=random'}" class="w-full h-full object-cover">
                     </div>
@@ -263,16 +270,19 @@
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
-            const filtered = customers.filter(c => 
+            filteredCustomers = customers.filter(c => 
                 c.name.toLowerCase().includes(val) || 
                 c.id.toLowerCase().includes(val) || 
                 c.address.toLowerCase().includes(val)
             );
-            renderList(filtered);
-            document.getElementById('customerCount').textContent = filtered.length;
+            renderList(filteredCustomers);
+            document.getElementById('customerCount').textContent = filteredCustomers.length;
         });
 
-        function openModal(c) {
+        function openModalByIndex(index) {
+            const c = filteredCustomers[index];
+            if (!c) return;
+
             document.getElementById('modalName').textContent = c.name;
             document.getElementById('modalId').textContent = `ID: ${c.id}`;
             document.getElementById('modalAddress').textContent = c.address;
@@ -298,13 +308,20 @@
                 dir.classList.add('opacity-50', 'pointer-events-none');
             }
 
-            document.getElementById('detailModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('modalContent').classList.remove('translate-y-full'), 10);
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            
+            modal.classList.remove('hidden');
+            // Force immediate layout reflow for cleaner animation
+            void content.offsetWidth;
+            content.classList.remove('translate-y-full');
         }
 
         function closeModal() {
             document.getElementById('modalContent').classList.add('translate-y-full');
-            setTimeout(() => document.getElementById('detailModal').classList.add('hidden'), 300);
+            setTimeout(() => {
+                document.getElementById('detailModal').classList.add('hidden');
+            }, 250);
         }
 
         document.getElementById('detailModal').addEventListener('click', (e) => {
