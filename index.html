@@ -10,16 +10,21 @@
         .glass-morphism {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid #ef4444; /* Red bottom border for header */
+            border-bottom: 2px solid #ef4444;
         }
         .customer-card {
-            transition: transform 0.1s ease, background-color 0.1s ease;
-            touch-action: manipulation; /* Removes tap delay on mobile */
+            transition: transform 0.1s ease;
+            touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            will-change: transform;
         }
         .customer-card:active {
             transform: scale(0.96);
-            background-color: #fef2f2; /* Light red flash on tap */
+            background-color: #fef2f2;
+        }
+        #modalContent {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
         .loader {
             border-top-color: #ef4444;
@@ -36,7 +41,6 @@
         .selectable {
             user-select: text;
         }
-        /* Prominent Search Bar style */
         .search-container {
             border: 2px solid #ef4444;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
@@ -91,14 +95,13 @@
         </div>
     </main>
 
-    <!-- Redesigned Compact Modal for Mobile One-Go View -->
+    <!-- Modal -->
     <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl transition-all transform translate-y-full flex flex-col" id="modalContent">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl transform translate-y-full flex flex-col" id="modalContent">
             
-            <!-- Compact Header -->
             <div class="relative h-44 bg-gray-200">
                 <img id="modalPhoto" src="" alt="Customer Photo" class="w-full h-full object-cover">
-                <button onclick="closeModal()" class="absolute top-3 right-3 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center z-10">
+                <button onclick="closeModal()" class="absolute top-3 right-3 bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center z-10">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
                 <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white p-4">
@@ -107,9 +110,7 @@
                 </div>
             </div>
 
-            <!-- Content Body (Compact Spacing) -->
             <div class="px-5 py-4 space-y-4">
-                <!-- Address Section -->
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
                         <i class="fa-solid fa-location-dot text-blue-600 text-sm"></i>
@@ -120,7 +121,6 @@
                     </div>
                 </div>
 
-                <!-- Numbers Row -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="flex items-center gap-2 p-2 bg-green-50 rounded-xl border border-green-100">
                         <i class="fa-solid fa-phone text-green-600 text-xs"></i>
@@ -138,7 +138,6 @@
                     </div>
                 </div>
 
-                <!-- Large Action Buttons -->
                 <div class="grid grid-cols-2 gap-3 pt-2">
                     <a id="bigCallBtn" href="#" class="flex flex-col items-center justify-center gap-1 py-3 bg-green-600 text-white rounded-2xl font-black text-xs shadow-lg active:scale-95 transition-all">
                         <i class="fa-solid fa-phone text-lg"></i>
@@ -151,7 +150,6 @@
                 </div>
             </div>
             
-            <!-- Modal Bottom Safe Area -->
             <div class="h-6 bg-white w-full"></div>
         </div>
     </div>
@@ -204,7 +202,6 @@
             customers = rows.slice(1).map(row => {
                 if (!row.trim()) return null;
                 const cols = splitCSVRow(row);
-                
                 return {
                     id: cols[columnsMap.id] || 'N/A',
                     name: cols[columnsMap.name] || 'Unknown',
@@ -226,12 +223,8 @@
             for (let i = 0; i < row.length; i++) {
                 const char = row[i];
                 if (char === '"') {
-                    if (inQuote && row[i+1] === '"') {
-                        current += '"';
-                        i++;
-                    } else {
-                        inQuote = !inQuote;
-                    }
+                    if (inQuote && row[i+1] === '"') { current += '"'; i++; }
+                    else { inQuote = !inQuote; }
                 } else if (char === ',' && !inQuote) {
                     result.push(current.trim());
                     current = '';
@@ -252,7 +245,7 @@
             }
             document.getElementById('noResults').classList.add('hidden');
             
-            // Generate list items as fragments for speed
+            // Chunked rendering to prevent main thread hanging
             container.innerHTML = list.map((c, index) => `
                 <div class="customer-card bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 flex items-center gap-4 cursor-pointer" onclick="openModalByIndex(${index})">
                     <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
@@ -268,15 +261,21 @@
             `).join('');
         }
 
+        let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            filteredCustomers = customers.filter(c => 
-                c.name.toLowerCase().includes(val) || 
-                c.id.toLowerCase().includes(val) || 
-                c.address.toLowerCase().includes(val)
-            );
-            renderList(filteredCustomers);
-            document.getElementById('customerCount').textContent = filteredCustomers.length;
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const val = e.target.value.toLowerCase();
+                filteredCustomers = customers.filter(c => 
+                    c.name.toLowerCase().includes(val) || 
+                    c.id.toLowerCase().includes(val) || 
+                    c.address.toLowerCase().includes(val)
+                );
+                requestAnimationFrame(() => {
+                    renderList(filteredCustomers);
+                    document.getElementById('customerCount').textContent = filteredCustomers.length;
+                });
+            }, 100);
         });
 
         function openModalByIndex(index) {
@@ -312,16 +311,18 @@
             const content = document.getElementById('modalContent');
             
             modal.classList.remove('hidden');
-            // Force immediate layout reflow for cleaner animation
-            void content.offsetWidth;
-            content.classList.remove('translate-y-full');
+            requestAnimationFrame(() => {
+                content.classList.remove('translate-y-full');
+            });
         }
 
         function closeModal() {
-            document.getElementById('modalContent').classList.add('translate-y-full');
-            setTimeout(() => {
-                document.getElementById('detailModal').classList.add('hidden');
-            }, 250);
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            
+            // Immediate backdrop removal for snappy feel
+            modal.classList.add('hidden');
+            content.classList.add('translate-y-full');
         }
 
         document.getElementById('detailModal').addEventListener('click', (e) => {
